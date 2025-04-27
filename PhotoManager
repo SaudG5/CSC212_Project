@@ -1,0 +1,43 @@
+package TheProject;
+
+public class PhotoManager {
+	private LinkedList<Photo> Photos;
+	
+	public PhotoManager() {
+		this.Photos = new LinkedList<>();
+	}
+	
+	public void addPhoto(Photo p) {
+		Photos.insert(p);
+	}
+	
+	public void deletePhoto(String path) {
+	    if (Photos.empty()) {
+	        System.out.println("There are no photos");
+	        return;
+	    }
+
+	    boolean found = false;
+	    Photos.findfirst();
+	    while (true) {
+	        if (Photos.retrieve().equals(path)) {
+	            Photos.remove();
+	            found = true;
+	            if (Photos.empty())    
+	                break;
+	        }
+	        else if (Photos.last()) 
+	            break;                
+	        
+	        else 
+	            Photos.findnext();      
+	    }
+
+	    if (!found) 
+	        System.out.println("There is no path like you mentioned");
+	}
+	
+	public LinkedList<Photo> getPhotos(){
+		return Photos;
+	}
+}
