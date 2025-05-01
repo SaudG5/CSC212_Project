@@ -119,6 +119,8 @@ public class BST<T> {
 		return p;
 	}
 
-	
+	public BSTNode<T> getRoot() {
+	    return root;
+	}
 	
 }
