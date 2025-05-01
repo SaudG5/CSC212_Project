@@ -1,10 +1,89 @@
- public class InvIndexPhotoManager {
- // Constructor
- public Photomanager();
- // Add a photo
- public void addPhoto(Photo p);
- // Delete a photo
- public void deletePhoto(String path);
- // Return the inverted index of all managed photos
- public BST<LinkedList<Photo>> getPhotos();
- }
+package TheProject;
+
+public class InvIndexPhotoManager {
+	private BST<LinkedList<Photo>> invertedIndex;
+	
+	public InvIndexPhotoManager() {
+		invertedIndex = new BST<>();
+	}
+	
+	public void addPhoto(Photo p) {
+		
+		LinkedList<String> tags = p.getTags();
+		tags.findfirst();
+		
+		while(!tags.empty()) {
+			String tag = tags.retrieve();
+			int key = computeKey(tag);
+			
+			if(invertedIndex.findKey(key)) {
+				LinkedList<Photo> photo = invertedIndex.retrieve();
+				photo.insert(p);
+			}
+			else {
+				
+				LinkedList<Photo> newList = new LinkedList<>();
+				newList.insert(p);
+				invertedIndex.insert(key, newList);
+				
+			}
+			
+			if(tags.last()) break;
+			
+			tags.findnext();
+			
+		}
+	}
+	
+	public void deletePhoto(String path) {
+		if(invertedIndex.empty())
+			return;
+		
+		deleteHelper(invertedIndex.root, path);
+	}
+	
+	private void deleteHelper(BSTNode<LinkedList<Photo>> node, String path) {
+	    if (node == null) return;
+
+	    // Traverse left and right subtrees
+	    deleteHelper(node.left, path);
+	    deleteHelper(node.right, path);
+
+	    LinkedList<Photo> photos = node.data;
+	    boolean removed = false;
+
+	    photos.findfirst();
+	    while (!photos.empty()) {
+	        if (photos.retrieve().getPath().equals(path)) {
+	            photos.remove();
+	            removed = true;
+	            if (photos.empty()) break;
+	        } else if (photos.last()) {
+	            break;
+	        } else {
+	            photos.findnext();
+	        }
+	    }
+
+	    // Remove the tag from the BST if it has no more photos
+	    if (removed && photos.empty()) {
+	        invertedIndex.remove_key(node.key);
+	    }
+	}
+	
+	
+	public BST<LinkedList<Photo>> getPhotos(){
+		return invertedIndex;
+	}
+
+	
+	private int computeKey(String tag) {
+	    int key = 0;
+	    for (int i = 0; i < tag.length(); i++) {
+	        key += (int) tag.charAt(i) * (i + 1);
+	    }
+	    return key;
+	}
+	
+
+}
