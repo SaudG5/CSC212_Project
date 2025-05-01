@@ -42,4 +42,20 @@ public class PhotoManager {
 	public LinkedList<Photo> getPhotos(){
 		return Photos;
 	}
+public void display() {
+	        if (Photos.empty()) {
+	            System.out.println("No photos to display.");
+	            return;
+	        }
+	        Photos.findfirst();
+	        while (true) {
+	            Photo photo = Photos.retrieve();
+	            System.out.println(photo.getPath());
+
+	            if (Photos.last()) {
+	                break;
+	            }
+	            Photos.findnext();
+	        }
+	 }
 }
