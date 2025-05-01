@@ -4,7 +4,7 @@ public class PhotoManager {
 	private LinkedList<Photo> Photos;
 	
 	public PhotoManager() {
-		this.Photos = new LinkedList<>();
+		this.Photos = new LinkedList<Photo>();
 	}
 	
 	public void addPhoto(Photo p) {
@@ -20,11 +20,9 @@ public class PhotoManager {
 	    boolean found = false;
 	    Photos.findfirst();
 	    while (true) {
-	        if (Photos.retrieve().equals(path)) {
+	        if (Photos.retrieve().getPath().equals(path)) {
 	            Photos.remove();
 	            found = true;
-	            if (Photos.empty())    
-	                break;
 	        }
 	        else if (Photos.last()) 
 	            break;                
@@ -32,8 +30,12 @@ public class PhotoManager {
 	        else 
 	            Photos.findnext();      
 	    }
+	    if (Photos.retrieve().getPath().equals(path)) {
+            Photos.remove();
+            found = true;
+        }
 
-	    if (!found) 
+	    if (found==false) 
 	        System.out.println("There is no path like you mentioned");
 	}
 	
