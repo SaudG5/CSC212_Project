@@ -63,21 +63,7 @@ public class LinkedList<T> {
 			current = head;
 		else
 			current = current.next;
-}
-
-	public void reverse() {
-		Node<T> tmp = new Node<T>();
-		current=head;
-		tmp.next=current;
-		while(head.next!=null) {
-			current.next=tmp.next;
-			head=head.next;
-			current=head;
-		}
-		head.next=current.next;
-		
 	}
-
 }
 	
 
