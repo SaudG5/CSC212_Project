@@ -1,0 +1,101 @@
+package TheProject_2;
+
+public class Album {
+    private String name;
+    private String condition;
+    private InvIndexPhotoManager manager;
+    private int nbComps;
+
+    public Album(String name, String condition, InvIndexPhotoManager manager) {
+        this.name = name;
+        this.condition = condition;
+        this.manager = manager;
+        this.nbComps = 0;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getCondition() {
+        return condition;
+    }
+
+    public InvIndexPhotoManager manager() {
+        return manager;
+    }
+
+    public LinkedList<Photo> getPhotos() {
+        // reset comparison count at start
+        nbComps = 0;
+
+        LinkedList<Photo> p = new LinkedList<>();
+        BST<LinkedList<Photo>> Photos = manager.getPhotos();
+
+        // build list of terms to AND-match
+        LinkedList<String> con = new LinkedList<>();
+        String[] t = condition.split("\\s*AND\\s*");
+        for (int i = 0; i < t.length; i++) {
+            con.insert(t[i]);
+        }
+
+        if (con.empty()) {
+            return Photos;
+        }
+
+        Photos.findfirst();
+        while (true) {
+            Photo c = Photos.retrieve();
+            boolean allMatch = true;
+
+            // for each search term
+            con.findfirst();
+            while (true) {
+                String CON = con.retrieve();
+
+                // scan tags of this photo
+                LinkedList<String> tags = c.getTags();
+                boolean found = false;
+
+                tags.findfirst();
+                while (true) {
+                	nbComps++;
+                    if (tags.retrieve().equals(CON)) {
+                        found = true;
+                        break;
+                    }
+                    if (tags.last()) {
+                        break;
+                    }
+                    tags.findnext();
+                }
+
+                if (!found) {
+                    allMatch = false;
+                    break;
+                }
+                if (con.last()) {
+                    break;
+                }
+                con.findnext();
+            }
+
+            if (allMatch) {
+                p.insert(c);
+            }
+
+            if (Photos.last()) {
+                break;
+            }
+            Photos.findnext();
+        }
+
+        return p;
+    }
+
+    public int getNbComps() {
+        return nbComps;
+    }
+    
+    
+}
