@@ -1,0 +1,36 @@
+package TheProject_2;
+
+public class Photo {
+    private String Path;
+    private LinkedList<String> tags;
+
+    public Photo(String path, LinkedList<String> tags) {
+        this.Path = path;
+        this.tags = new LinkedList<>();
+
+        tags.findfirst();
+        while (!tags.empty()) {
+            this.tags.insert(tags.retrieve());
+            if (tags.last())
+                break;
+            tags.findnext();
+        }
+    }
+
+    public String getPath() {
+        return Path;
+    }
+
+    public LinkedList<String> getTags() {
+        LinkedList<String> t = new LinkedList<String>();
+
+        tags.findfirst();
+        while (!tags.empty()) {
+            t.insert(tags.retrieve());
+            if (tags.last())
+                break;
+            tags.findnext();
+        }
+        return t;
+    }
+}
