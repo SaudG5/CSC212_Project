@@ -12,7 +12,7 @@ public class Album {
         this.manager = manager;
         this.nbComps = 0;
     }
-
+    
     public String getName() {
         return name;
     }
@@ -29,38 +29,36 @@ public class Album {
         // reset comparison count at start
         nbComps = 0;
 
-        LinkedList<Photo> p = new LinkedList<>();
-        LinkedList<Photo> Photos = manager.getPhotos();
+        LinkedList<Photo> allPhotos = manager.getPhotos();
+
+        // if no condition provided, return all photos
+        if (condition == null || condition.trim().isEmpty()) {
+            return allPhotos;
+        }
 
         // build list of terms to AND-match
         LinkedList<String> con = new LinkedList<>();
-        String[] t = condition.split("\\s*AND\\s*");
-        for (int i = 0; i < t.length; i++) {
-            con.insert(t[i]);
+        String[] terms = condition.split("\\s*AND\\s*");
+        for (String term : terms) {
+            con.insert(term);
         }
 
-        if (con.empty()) {
-            return Photos;
-        }
-
-        Photos.findfirst();
+        LinkedList<Photo> result = new LinkedList<>();
+        allPhotos.findfirst();
         while (true) {
-            Photo c = Photos.retrieve();
+            Photo photo = allPhotos.retrieve();
             boolean allMatch = true;
 
-            // for each search term
             con.findfirst();
             while (true) {
-                String CON = con.retrieve();
-
-                // scan tags of this photo
-                LinkedList<String> tags = c.getTags();
+                String key = con.retrieve();
+                LinkedList<String> tags = photo.getTags();
                 boolean found = false;
 
                 tags.findfirst();
                 while (true) {
-                	nbComps++;
-                    if (tags.retrieve().equals(CON)) {
+                    nbComps++;
+                    if (tags.retrieve().equals(key)) {
                         found = true;
                         break;
                     }
@@ -81,19 +79,20 @@ public class Album {
             }
 
             if (allMatch) {
-                p.insert(c);
+                result.insert(photo);
             }
-
-            if (Photos.last()) {
+            if (allPhotos.last()) {
                 break;
             }
-            Photos.findnext();
+            allPhotos.findnext();
         }
 
-        return p;
+        return result;
     }
 
+    
     public int getNbComps() {
+    	getPhotos();
         return nbComps;
     }
 }
