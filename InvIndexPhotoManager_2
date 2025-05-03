@@ -1,89 +1,117 @@
-package TheProject_2;
+package theProject_2;
 
 public class InvIndexPhotoManager {
-	private BST<LinkedList<Photo>> invertedIndex;
-	
-	public InvIndexPhotoManager() {
-		invertedIndex = new BST<>();
-	}
-	
-	public void addPhoto(Photo p) {
-		
-		LinkedList<String> tags = p.getTags();
-		tags.findfirst();
-		
-		while(!tags.empty()) {
-			String tag = tags.retrieve();
-			int key = computeKey(tag);
-			
-			if(invertedIndex.findKey(key)) {
-				LinkedList<Photo> photo = invertedIndex.retrieve();
-				photo.insert(p);
-			}
-			else {
-				
-				LinkedList<Photo> newList = new LinkedList<>();
-				newList.insert(p);
-				invertedIndex.insert(key, newList);
-				
-			}
-			
-			if(tags.last()) break;
-			
-			tags.findnext();
-			
-		}
-	}
-	
-	public void deletePhoto(String path) {
-		if(invertedIndex.empty())
-			return;
-		
-		deleteHelper(invertedIndex.root, path);
-	}
-	
-	private void deleteHelper(BSTNode<LinkedList<Photo>> node, String path) {
-	    if (node == null) return;
+    private BST<LinkedList<Photo>> bst;
+    private LinkedList<Photo> photos;
 
-	    // Traverse left and right subtrees
-	    deleteHelper(node.left, path);
-	    deleteHelper(node.right, path);
+    // Constructor
+    public InvIndexPhotoManager() {
+        bst = new BST<>();
+        photos = new LinkedList<>();
+    }
 
-	    LinkedList<Photo> photos = node.data;
-	    boolean removed = false;
+    // Add a photo
+    public void addPhoto(Photo p) {
+        LinkedList<String> tags = p.getTags();
+        tags.findfirst();
+        LinkedList<Photo> photosList;
+        while (tags.isThereNext()) {
+            String tag = tags.retrieve();
 
-	    photos.findfirst();
-	    while (!photos.empty()) {
-	        if (photos.retrieve().getPath().equals(path)) {
-	            photos.remove();
-	            removed = true;
-	            if (photos.empty()) break;
-	        } else if (photos.last()) {
-	            break;
-	        } else {
-	            photos.findnext();
-	        }
-	    }
+            if (bst.findKey(tag)) {
+                photosList = bst.retrieve();
+                photosList.insert(p);
+                bst.update(tag, photosList);
+            } else {
+                photosList = new LinkedList<>();
+                photosList.insert(p);
+                bst.insert(tag, photosList);
+            }
 
-	    // Remove the tag from the BST if it has no more photos
-	    if (removed && photos.empty()) {
-	        invertedIndex.remove_key(node.key);
-	    }
-	}
-	
-	
-	public BST<LinkedList<Photo>> getPhotos(){
-		return invertedIndex;
-	}
+            tags.findnext();
+        }
+        //all photos
+        photos.insert(p);
+    }
 
-	
-	private int computeKey(String tag) {
-	    int key = 0;
-	    for (int i = 0; i < tag.length(); i++) {
-	        key += (int) tag.charAt(i) * (i + 1);
-	    }
-	    return key;
-	}
-	
+
+    // Delete a photo
+    public void deletePhoto(String path) {
+        BSTNode<LinkedList<Photo>> root = bst.getRoot();
+        updateNodeData(root, path);
+    }
+
+    public void updateNodeData(BSTNode<LinkedList<Photo>> node, String path) {
+        LinkedList<Photo> photosList = node.data;
+        photosList.findfirst();
+
+        while (photosList.isThereNext()) {
+            Photo photo = photosList.retrieve();
+            if (photo.getPath().equals(path)) {
+                photosList.remove();
+            }
+
+            if (photosList.isThereNext())
+                photosList.findnext();
+        }
+
+        if (photosList.empty()) {
+            bst.removeKey(node.key);
+        }
+
+        if (node.left != null) {
+            updateNodeData(node.left, path);
+        }
+        if (node.right != null) {
+            updateNodeData(node.right, path);
+        }
+        if (node.left == null && node.right == null) return;
+    }
+
+    // Return the inverted index of all managed photos
+    public BST<LinkedList<Photo>> getPhotos() {
+        return bst;
+    }
+
+    public LinkedList<Photo> getAllPhotos() {
+        return photos;
+    }
+ 
+    public void display() {
+        BST<String> seen = new BST<>();
+        displayNode(bst.getRoot(), seen);
+    }
+
+    private void displayNode(BSTNode<LinkedList<Photo>> node, BST<String> seen) {
+        if (node == null) return;
+
+        // 1) traverse left subtree
+        displayNode(node.left, seen);
+
+        // 2) iterate this tag’s list of photos
+        LinkedList<Photo> list = node.data;
+        list.findfirst();
+        while (list.isThereNext()) {
+            String path = list.retrieve().getPath();
+            // if we haven't seen it before, print and mark as seen
+            if (!seen.findKey(path)) {
+                System.out.println(path);
+                seen.insert(path, path);
+            }
+            list.findnext();
+        }
+
+        // 3) traverse right subtree
+        displayNode(node.right, seen);
+    }
+
+
+    //add to PhotoManager
+    @Override
+    public String toString() {
+        return bst.toString();
+    }
+    
+
 
 }
