@@ -1,128 +1,141 @@
-package TheProject_2;
+package theProject_2;
 
 public class BST<T> {
-	
-	BSTNode<T> root,current;
-	
-	public BST() {
-		root = current = null;
-	}
-	
-	public boolean empty() {
-		return root == null;
-	}
-	
-	public boolean full() {
-		return false;
-	}
-	
-	public T retrieve() {
-		return current.data;
-	}
-	
-	public void update(T val) {
-		current.data = val;
-	}
-	
-	public boolean findKey(int tkey) {
-		BSTNode<T> p,q;
-		p = root;
-		q = root;
-		
-		if(empty())
-			return false;
-		
-		while(p != null) {
-			q = p;
-			
-			if(p.key == tkey) {
-				current = p;
-				return true;
-			}
-			
-			else if(tkey < p.key)
-				p = p.left;
-			else
-				p = p.right;
-		}
-		current = q;
-		return false;
-	}
-	
-	public boolean insert(int k, T val) {
-		BSTNode<T> p = current, q = current;
-		
-		if(findKey(k)) {
-			current = q;  
-			return false; 
-		}
-		
-		p = new BSTNode<T>(k, val);
-		if (empty()) {
-			root = current = p;
-			return true;
-		}
-		else {
-			
-			if (k < current.key)
-				current.left = p;
-			else
-				current.right = p;
-			current = p;
-			return true;
-		}
-	}
-	
-	public boolean remove_key (int tkey){
-		BooleanWrapper removed = new BooleanWrapper(false);
-			BSTNode<T> p;
-			p = remove_aux(tkey, root, removed);
-			current = root = p;
-			return removed.get();
-	}
-	
-	private BSTNode<T> remove_aux(int key, BSTNode<T> p, BooleanWrapper flag) {
-		BSTNode<T> q, child = null;
-		if(p == null)
-			return null;
-		if(key < p.key)
-			p.left = remove_aux(key, p.left, flag); 
-		else if(key > p.key)
-			p.right = remove_aux(key, p.right, flag); 
-		else {
-			flag.set( true);
-			if (p.left != null && p.right != null){ 
-				q = find_min(p.right);
-				p.key = q.key;
-				p.data = q.data;
-				p.right = remove_aux(q.key, p.right, flag);
-			}
-			
-			else {
-				if (p.right == null) 
-					child = p.left;
-				else if (p.left == null) 
-					child = p.right;
-				return child;
-			}
-		}
-		return p;
-	}
+
+    private BSTNode<T> root, current;
+    private int nbComp;
+
+    public BST() {
+        current = root = null;
+    }
+
+    public void clear() {
+        current = root = null;
+    }
+
+    public boolean empty() {
+        return root == null;
+    }
+
+    public boolean full() {
+        return false;
+    }
+
+    public T retrieve() {
+        return current.data;
+    }
+
+    public boolean findKey(String k) {
+        nbComp = 1;
+        BSTNode<T> p = root;
+        while (p != null) {
+            current = p;
+            if (k.compareTo(p.key) == 0) {
+                return true;
+            } else if (k.compareTo(p.key) < 0) {
+                p = p.left;
+            } else {
+                p = p.right;
+            }
+            nbComp++;
+        }
+        return false;
+    }
+
+    public boolean insert(String k, T val) {
+        if (root == null) {
+            current = root = new BSTNode<T>(k, val);
+            return true;
+        }
+
+        BSTNode<T> p = current;
+        if (findKey(k)) {
+            current = p;
+            return false;
+        }
+
+        BSTNode<T> tmp = new BSTNode<T>(k, val);
+        if (k.compareTo(current.key) < 0) {
+            current.left = tmp;
+        } else {
+            current.right = tmp;
+        }
+        current = tmp;
+        return true;
+    }
+
+    public boolean removeKey(String k) {
+        BooleanWrapper removed = new BooleanWrapper(false);
+        root = removeKeyAux(k, root, removed);
+        current = root;
+        return removed.get();
+    }
+
+    
+     // Recursive helper for removeKey.
+     
+    private BSTNode<T> removeKeyAux(String key, BSTNode<T> node, BooleanWrapper removed) {
+        if (node == null) {
+            return null;
+        }
+        int cmp = key.compareTo(node.key);
+        if (cmp < 0) {
+            node.left = removeKeyAux(key, node.left, removed);
+        } else if (cmp > 0) {
+            node.right = removeKeyAux(key, node.right, removed);
+        } else {
+            // Key found
+            removed.set(true);
+            if (node.left != null && node.right != null) {
+                // Two children: replace with inorder successor
+                BSTNode<T> successor = findMin(node.right);
+                node.key = successor.key;
+                node.data = successor.data;
+                node.right = removeKeyAux(successor.key, node.right, removed);
+            } else {
+                // One or zero children
+                node = (node.left != null) ? node.left : node.right;
+            }
+        }
+        return node;
+    }
+
+    /**
+     * Finds the minimum node in the subtree rooted at node.
+     */
+    private BSTNode<T> findMin(BSTNode<T> node) {
+        while (node.left != null) {
+            node = node.left;
+        }
+        return node;
+    }
 
 
-	private BSTNode<T> find_min(BSTNode<T> p){
-		if(p == null)
-			return null;
-		
-		while(p.left != null){
-			p = p.left;
-		}
-		
-		return p;
-	}
+    public boolean update(String k, T val) {
+        if (findKey(k)) {
+            current.data = val;
+            return true;
+        } else {
+            return false;
+        }
+    }
 
-	public BSTNode<T> getRoot() {
-	    return root;
-	}
-	
+    public BSTNode<T> getRoot() {
+        return root;
+    }
+
+
+    @Override
+    public String toString() {
+        if (root == null)
+            return "Null";
+        return root.toString();
+    }
+
+    public int getNbComp(String k) {
+        findKey(k);
+        return nbComp;
+    }
+
 }
+
