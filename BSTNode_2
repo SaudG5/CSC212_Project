@@ -1,22 +1,26 @@
-package TheProject_2;
+package theProject_2;
 
 public class BSTNode<T> {
-	public int key;
-	public T data;
-	public BSTNode<T> left, right;
-	
-	public BSTNode(int k, T val) {
-		key = k;
-		data = val;
-		left = right = null;
-	}
-	
-	public BSTNode(int k, T val, BSTNode<T> l, BSTNode<T> r) {
-		key = k;
-		data = val;
-		left = l;
-		right = r;
-	}
-	
+    public String key;
+    public T data;
+    public BSTNode<T> left, right;
+
+
+    public BSTNode(String key, T data) {
+        this.key = key;
+        this.data = data;
+        left = right = null;
+    }
+
+    @Override
+    public String toString() {
+        return toString("");
+    }
+
+    private String toString(String node) {
+        return node + key + " = " + data.toString() +
+                ((left == null) ? "" : "\n" + left.toString(node + '\t')) +
+                ((right == null) ? "" : "\n" + right.toString(node + '\t'));
+    }
 
 }
